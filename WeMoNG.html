@@ -1,0 +1,155 @@
+<script type="text/x-red" data-template-name="WeMoNG-event">
+
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-tasks"></i> Device</label>
+        <input type="text" id="node-input-device" placeholder="Device">
+    </div>
+    <br/>
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="WeMoNG-event">
+   <p>Simple sample input node. Just sends a single message when it starts up.
+   This is not very useful.</p>
+   <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
+   <b>msg.payload</b>. msg.payload is a String.</p>
+</script>
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('WeMoNG-event',{
+        category: 'input',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            name: {value:""},   //  along with default values.
+            topic: {value:"wemo", required: true},
+            device: {value:"", type: "WeMoNG-dev"}
+        },
+        color: "LawnGreen",
+        inputs:0,               // set the number of inputs - only 0 or 1
+        outputs:1,              // set the number of outputs - 0 to n
+        // set the icon (held in icons dir below where you save the node)
+        icon: "myicon.png",     // saved in  icons/myicon.png
+        label: function() {     // sets the default label contents
+            return this.name||"WeMoNG";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="WeMoNG-control">
+
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+    <br/>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-tasks"></i> Device</label>
+        <input type="text" id="node-input-device" placeholder="Device">
+    </div>
+    <br/>
+    <!-- By convention, most nodes have a 'name' property. The following div -->
+    <!-- provides the necessary field. Should always be the last option      -->
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="WeMoNG-control">
+   <p>Simple sample input node. Just sends a single message when it starts up.
+   This is not very useful.</p>
+   <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
+   <b>msg.payload</b>. msg.payload is a String.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('WeMoNG-control',{
+        category: 'output',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            topic: {value: ""},
+            name: {value:""},   //  along with default values.
+            device: {type: "WeMoNG-dev", required: true}
+        },
+        color: "LawnGreen",
+        inputs:1,               // set the number of inputs - only 0 or 1
+        // set the icon (held in icons dir below where you save the node)
+        icon: "myicon.png",     // saved in  icons/myicon.png
+        label: function() {     // sets the default label contents
+            return this.name||"WeMoNG";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="WeMoNG-dev">
+
+    <div class="form-row">
+        <label for="node-config-input-device"><i class="fa fa-tasks"></i> Device</label>
+        <select size="4" id="node-config-input-device">
+        </select>
+    </div>
+    <br/>
+    <div class="form-row">
+      <label for="node-config-input-type"><i class="fa fa-tasks"></i> Type</label>
+      <input type="text" editable="false" id="node-config-input-type" placeholder="Type"/>
+      <input type="hidden" editable="false"  id="node-config-input-name"/>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('WeMoNG-dev',{
+        category: 'config',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            device: {value:"", required: true},   //  along with default values.
+            name: {value: ""}
+        },
+        label: function() {     // sets the default label contents
+            return this.name;
+        },
+        oneditprepare: function() {
+          var devices;
+          $.getJSON('/wemoNG/devices', function(data){
+            devices = data;
+            var devs = Object.keys(data);
+            if (devs.length != 0) {
+              for (d in devs) {
+                $('<option/>',{
+                  'value': devs[d],
+                  'text': data[devs[d]].name
+                }).appendTo('#node-config-input-device');
+                console.log(data[devs[d]].name);
+              }
+            }
+          });
+
+          $('#node-config-input-device').change(function(){
+            var id = $( "#node-config-input-device option:selected" ).first().val();
+            console.log(id);
+            if (devices) {
+              console.log(devices[id].type);
+              $('#node-config-input-type').val(devices[id].type);
+              $('#node-config-input-name').val(devices[id].name);
+            }
+          });
+        },
+        oneditsave: function() {
+
+        }
+    });
+</script>
