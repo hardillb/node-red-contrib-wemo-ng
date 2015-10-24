@@ -39,7 +39,7 @@
         inputs:0,               // set the number of inputs - only 0 or 1
         outputs:1,              // set the number of outputs - 0 to n
         // set the icon (held in icons dir below where you save the node)
-        icon: "myicon.png",     // saved in  icons/myicon.png
+        icon: "belkin.png",     // saved in  icons/myicon.png
         label: function() {     // sets the default label contents
             return this.name||"WeMoNG";
         },
@@ -51,11 +51,6 @@
 
 <script type="text/x-red" data-template-name="WeMoNG-control">
 
-    <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
-        <input type="text" id="node-input-topic" placeholder="Topic">
-    </div>
-    <br/>
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-tasks"></i> Device</label>
         <input type="text" id="node-input-device" placeholder="Device">
@@ -80,14 +75,13 @@
     RED.nodes.registerType('WeMoNG-control',{
         category: 'output',      // the palette category
         defaults: {             // defines the editable properties of the node
-            topic: {value: ""},
             name: {value:""},   //  along with default values.
             device: {type: "WeMoNG-dev", required: true}
         },
         color: "LawnGreen",
-        inputs:1,               // set the number of inputs - only 0 or 1
+        inputs: 1,               // set the number of inputs - only 0 or 1
         // set the icon (held in icons dir below where you save the node)
-        icon: "myicon.png",     // saved in  icons/myicon.png
+        icon: "belkin.png",     // saved in  icons/myicon.png
         label: function() {     // sets the default label contents
             return this.name||"WeMoNG";
         },

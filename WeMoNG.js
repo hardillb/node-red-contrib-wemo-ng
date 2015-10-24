@@ -144,6 +144,45 @@ function search() {
 }
 
 
+function toggleSocket(socket, on) {
+  var postoptions = {
+        host: socket.ip,
+        port: socket.port,
+        path: "/upnp/control/basicevent1",
+        method: 'POST',
+        headers: {
+          'SOAPACTION': '"urn:Belkin:service:basicevent:1#SetBinaryState"',
+          'Content-Type': 'text/xml; charset="utf-8"',
+          'Accept': ''
+        }
+      };
+
+      var post_request = http.request(postoptions, function(res) {
+        var data = "";
+        res.setEncoding('utf8');
+        res.on('data', function(chunk){
+          data += chunk
+        });
+
+        res.on('end', function(){
+          console.log(data);
+        });
+      });
+
+    var body = [
+      postbodyheader,
+      '<u:SetBinaryState xmlns:u="urn:Belkin:service:basicevent:1">',
+      '<BinaryState>%s</BinaryState>',
+      '</u:SetBinaryState>',
+      postbodyfooter
+    ].join('\n');
+
+    post_request.write(util.format(body, on));
+    post_request.end();
+}
+
+
+
 //this won't work as there is no way to stop it...
 //but is that a problem?
 var interval = setInterval(search, 60000);
@@ -159,11 +198,44 @@ module.exports = function(RED) {
 
 	function wemoNGNode(n) {
 		RED.nodes.createNode(this,n);
+		this.device = n.device;
+		this.dev = RED.nodes.getNode(this.device).device;
+		var node = this;
+
+		console.log("Control - %j" ,this.dev);
+
+		this.on('input', function(msg){
+			var dev = devices[node.dev];
+
+			if (!dev) {
+				//need to show that dev not currently found
+				console.log("no device found");
+				return;
+			} else {
+				console.log("details %j", dev);
+			}
+
+			var on = 0;
+			if (msg.payload == 'on') {
+				on = 1;
+			}
+
+			if (dev.type == 'socket') {
+				console.log("socket")
+				toggleSocket(dev, on);
+			} else {
+				console.log("not socket");
+			}
+		});
 	}
-	RED.nodes.registerType("WeMo-control", wemoNGNode);
+	RED.nodes.registerType("WeMoNG-control", wemoNGNode);
 
 	function wemoNGEvent(n) {
 		RED.nodes.createNode(this,n);
+		this.device = n.device;
+
+		var node = this;
+		//subscribe to events
 
 		this.on('close', function(done){
 			//should un subscribe from events
