@@ -32,10 +32,10 @@ getenddevs.body = [
 ].join('\n');
 
 var devices = {};
+var subscriptions = {};
 var client;
 
 function search() {
-	console.log("searching");
 	client = new Client();
 	client.setMaxListeners(0);
 	client.on('response', function (headers, statusCode, rinfo) {
@@ -137,7 +137,6 @@ function search() {
 	});
 	client.search(urn);
 	setTimeout(function(){
-		console.log("stopping");
 		client._stop();
 		//console.log("%j", devices);
 	}, 10000);
@@ -165,7 +164,7 @@ function toggleSocket(socket, on) {
         });
 
         res.on('end', function(){
-          console.log(data);
+          //console.log(data);
         });
       });
 
@@ -181,7 +180,62 @@ function toggleSocket(socket, on) {
     post_request.end();
 }
 
+function setStatus(light, capability, value) {
+  var setdevstatus = {};
+  setdevstatus.path = '/upnp/control/bridge1';
+  setdevstatus.action = '"urn:Belkin:service:bridge:1#SetDeviceStatus"';
+  setdevstatus.body = [
+    postbodyheader,
+    '<u:SetDeviceStatus xmlns:u="urn:Belkin:service:bridge:1">',
+    '<DeviceStatusList>',
+    '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;DeviceStatus&gt;&lt;IsGroupAction&gt;NO&lt;/IsGroupAction&gt;&lt;DeviceID available=&quot;YES&quot;&gt;%s&lt;/DeviceID&gt;&lt;CapabilityID&gt;%s&lt;/CapabilityID&gt;&lt;CapabilityValue&gt;%s&lt;/CapabilityValue&gt;&lt;/DeviceStatus&gt;',
+    '</DeviceStatusList>',
+    '</u:SetDeviceStatus>',
+    postbodyfooter
+  ].join('\n');
 
+  var postoptions = {
+    host: light.ip,
+    port: light.port,
+    path: setdevstatus.path,
+    method: 'POST',
+    headers: {
+      'SOAPACTION': setdevstatus.action,
+       'Content-Type': 'text/xml; charset="utf-8"',
+      'Accept': ''
+    }
+  };
+
+  var post_request = http.request(postoptions, function(res) {
+    var data = "";
+    res.setEncoding('utf8');
+    res.on('data', function(chunk) {
+      data += chunk;
+    });
+
+    res.on('end', function(){
+      //console.log(data);
+    });
+  });
+
+  post_request.on('error', function (e) {
+    console.log(e);
+    console.log("%j", postoptions);
+  });
+
+  //console.log(util.format(setdevstatus.body, light.id, capability, value));
+
+  post_request.write(util.format(setdevstatus.body, light.id, capability, value));
+  post_request.end();
+}
+
+function subscribe(node) {
+
+}
+
+function unsubscribe(node) {
+
+}
 
 //this won't work as there is no way to stop it...
 //but is that a problem?
@@ -202,7 +256,7 @@ module.exports = function(RED) {
 		this.dev = RED.nodes.getNode(this.device).device;
 		var node = this;
 
-		console.log("Control - %j" ,this.dev);
+		//console.log("Control - %j" ,this.dev);
 
 		this.on('input', function(msg){
 			var dev = devices[node.dev];
@@ -212,7 +266,7 @@ module.exports = function(RED) {
 				console.log("no device found");
 				return;
 			} else {
-				console.log("details %j", dev);
+				//console.log("details %j", dev);
 			}
 
 			var on = 0;
@@ -221,28 +275,33 @@ module.exports = function(RED) {
 			}
 
 			if (dev.type == 'socket') {
-				console.log("socket")
+				//console.log("socket")
 				toggleSocket(dev, on);
+			} else if (dev.type == 'light`') {
+				setStatus(dev,"10006", on);
 			} else {
-				console.log("not socket");
+				console.log("group");
 			}
 		});
 	}
-	RED.nodes.registerType("WeMoNG-control", wemoNGNode);
+	RED.nodes.registerType("WeMoNG out", wemoNGNode);
 
 	function wemoNGEvent(n) {
 		RED.nodes.createNode(this,n);
 		this.device = n.device;
-
+		this.dev = RED.nodes.getNode(this.device).device;
 		var node = this;
+		
 		//subscribe to events
+		subscribe(node);
 
 		this.on('close', function(done){
 			//should un subscribe from events
+			unsubscribe(node);
 			done();
 		});
 	}
-	RED.nodes.registerType("WeMo-event", wemoNGEvent)
+	RED.nodes.registerType("WeMoNG in", wemoNGEvent)
 
 	RED.httpAdmin.get('/wemoNG/devices', function(req,res){
 		res.json(devices);

@@ -1,4 +1,4 @@
-<script type="text/x-red" data-template-name="WeMoNG-event">
+<script type="text/x-red" data-template-name="WeMoNG in">
 
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
@@ -19,7 +19,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="WeMoNG-event">
+<script type="text/x-red" data-help-name="WeMoNG in">
    <p>Simple sample input node. Just sends a single message when it starts up.
    This is not very useful.</p>
    <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
@@ -28,7 +28,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('WeMoNG-event',{
+    RED.nodes.registerType('WeMoNG in',{
         category: 'input',      // the palette category
         defaults: {             // defines the editable properties of the node
             name: {value:""},   //  along with default values.
@@ -49,7 +49,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="WeMoNG-control">
+<script type="text/x-red" data-template-name="WeMoNG out">
 
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-tasks"></i> Device</label>
@@ -64,7 +64,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="WeMoNG-control">
+<script type="text/x-red" data-help-name="WeMoNG out">
    <p>Simple sample input node. Just sends a single message when it starts up.
    This is not very useful.</p>
    <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
@@ -72,7 +72,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('WeMoNG-control',{
+    RED.nodes.registerType('WeMoNG out',{
         category: 'output',      // the palette category
         defaults: {             // defines the editable properties of the node
             name: {value:""},   //  along with default values.
