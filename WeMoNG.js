@@ -6,6 +6,9 @@ var os = require('os');
 var http = require('http');
 var util = require('util');
 var url = require('url');
+var ip = require('ip');
+
+var bodyParser = require('body-parser');
 
 var urn = 'urn:Belkin:service:basicevent:1';
 var postbodyheader = [
@@ -213,7 +216,7 @@ function setStatus(light, capability, value) {
       data += chunk;
     });
 
-    res.on('end', function(){
+    res.on('end', function() {
       //console.log(data);
     });
   });
@@ -229,12 +232,30 @@ function setStatus(light, capability, value) {
   post_request.end();
 }
 
-function subscribe(node) {
 
+
+function subscribe(node) {
+	console.log("subscribe - %s", node.id);
+	var dev = node.dev;
+	console.log("dev - %s", dev);
+	console.log("%s", devices[dev].name);
+	var ipAddress = ip.address();
+	if (subscriptions[dev]) {
+		//exists
+	} else {
+		//new
+		subscriptions[dev] = {'foo': 'bar'};
+	}
 }
 
 function unsubscribe(node) {
-
+	console.log("subscribe - %s", node.id);
+	var dev = node.dev;
+	if (subscriptions[dev]) {
+		delete subscriptions[dev];
+	} else {
+		//shouldn't ever get here
+	}
 }
 
 //this won't work as there is no way to stop it...
@@ -293,7 +314,14 @@ module.exports = function(RED) {
 		var node = this;
 		
 		//subscribe to events
-		subscribe(node);
+		if (devices[this.dev]) {
+			subscribe(node);
+		} else {
+			console.log("not discovered yet");
+			setTimeout(function(){
+				subscribe(node);
+			},10000);
+		}
 
 		this.on('close', function(done){
 			//should un subscribe from events
@@ -307,6 +335,8 @@ module.exports = function(RED) {
 		res.json(devices);
 
 	});
+
+	RED.httpAdmin.use('/wemoNG/notification/*',bodyParser.raw({type: 'text/xml'}));
 
 	RED.httpAdmin.notify('/wemoNG/notification/*', function(req, res){
 
