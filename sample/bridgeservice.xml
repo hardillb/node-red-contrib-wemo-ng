@@ -1,0 +1,595 @@
+<?xml version="1.0"?>
+<scpd xmlns="urn:Belkin:service-1-0">
+
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+
+  <actionList>
+    <action>
+      <name>OpenNetwork</name>
+      <argumentList>
+         <argument>
+           <name>DevUDN</name>
+           <direction>in</direction>
+           <relatedStateVariable>DevUDN</relatedStateVariable>
+         </argument>
+	    </argumentList>
+    </action>
+
+    <action>
+      <name>CloseNetwork</name>
+      <argumentList>
+         <argument>
+           <name>DevUDN</name>
+           <direction>in</direction>
+           <relatedStateVariable>DevUDN</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetEndDevices</name>
+      <argumentList>
+         <argument>
+           <name>DevUDN</name>
+           <direction>in</direction>
+           <relatedStateVariable>DevUDN</relatedStateVariable>
+         </argument>
+	       <argument>
+           <name>ReqListType</name>
+           <direction>in</direction>
+           <relatedStateVariable>ReqListType</relatedStateVariable>
+         </argument>
+	       <argument>
+           <name>DeviceLists</name>
+           <direction>out</direction>
+           <relatedStateVariable>DeviceLists</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>AddDevice</name>
+      <argumentList>
+         <argument>
+           <name>DeviceIDs</name>
+           <direction>in</direction>
+           <relatedStateVariable>DeviceIDs</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>ErrorDeviceIDs</name>
+           <direction>out</direction>
+           <relatedStateVariable>ErrorDeviceIDs</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>AddDeviceName</name>
+      <argumentList>
+        <argument>
+          <name>DeviceIDs</name>
+          <direction>in</direction>
+          <relatedStateVariable>DeviceIDs</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>FriendlyNames</name>
+          <direction>in</direction>
+          <relatedStateVariable>FriendlyNames</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>ErrorDeviceIDs</name>
+          <direction>out</direction>
+          <relatedStateVariable>ErrorDeviceIDs</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>RemoveDevice</name>
+      <argumentList>
+         <argument>
+           <name>DeviceIDs</name>
+           <direction>in</direction>
+           <relatedStateVariable>DeviceIDs</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>ErrorDeviceIDs</name>
+           <direction>out</direction>
+           <relatedStateVariable>ErrorDeviceIDs</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>SetDeviceStatus</name>
+      <argumentList>
+         <argument>
+           <name>DeviceStatusList</name>
+           <direction>in</direction>
+           <relatedStateVariable>DeviceStatusList</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>ErrorDeviceIDs</name>
+           <direction>out</direction>
+           <relatedStateVariable>ErrorDeviceIDs</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetDeviceStatus</name>
+      <argumentList>
+         <argument>
+           <name>DeviceIDs</name>
+           <direction>in</direction>
+           <relatedStateVariable>DeviceIDs</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>DeviceStatusList</name>
+           <direction>out</direction>
+           <relatedStateVariable>DeviceStatusList</relatedStateVariable>
+          </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetCapabilityProfileIDList</name>
+      <argumentList>
+         <argument>
+           <name>DevUDN</name>
+           <direction>in</direction>
+           <relatedStateVariable>DevUDN</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>CapabilityProfileIDList</name>
+           <direction>out</direction>
+           <relatedStateVariable>CapabilityProfileIDList</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetCapabilityProfileList</name>
+      <argumentList>
+         <argument>
+           <name>CapabilityIDs</name>
+           <direction>in</direction>
+           <relatedStateVariable>CapabilityIDs</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>CapabilityProfileList</name>
+           <direction>out</direction>
+           <relatedStateVariable>CapabilityProfileList</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetDeviceCapabilities</name>
+      <argumentList>
+         <argument>
+           <name>DeviceIDs</name>
+           <direction>in</direction>
+           <relatedStateVariable>DeviceIDs</relatedStateVariable>
+         </argument>
+         <argument>
+           <name>DeviceCapabilities</name>
+           <direction>out</direction>
+           <relatedStateVariable>DeviceCapabilities</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>CreateGroup</name>
+      <argumentList>
+        <argument>
+          <name>ReqCreateGroup</name>
+          <direction>in</direction>
+          <relatedStateVariable>ReqCreateGroup</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>RespCreateGroup</name>
+          <direction>out</direction>
+          <relatedStateVariable>RespCreateGroup</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>DeleteGroup</name>
+      <argumentList>
+        <argument>
+          <name>GroupID</name>
+          <direction>in</direction>
+          <relatedStateVariable>GroupID</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>ResponseStatus</name>
+          <direction>out</direction>
+          <relatedStateVariable>ResponseStatus</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetGroups</name>
+      <argumentList>
+        <argument>
+          <name>DevUDN</name>
+          <direction>in</direction>
+          <relatedStateVariable>DevUDN</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>RespGetGroups</name>
+          <direction>out</direction>
+          <relatedStateVariable>RespGetGroups</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>SetDeviceName</name>
+      <argumentList>
+        <argument>
+          <name>DeviceID</name>
+          <direction>in</direction>
+          <relatedStateVariable>DeviceID</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>FriendlyName</name>
+          <direction>in</direction>
+          <relatedStateVariable>FriendlyName</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Status</name>
+          <direction>out</direction>
+          <relatedStateVariable>Status</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>SetDeviceNames</name>
+      <argumentList>
+        <argument>
+          <name>DeviceIDs</name>
+          <direction>in</direction>
+          <relatedStateVariable>DeviceIDs</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>FriendlyNames</name>
+          <direction>in</direction>
+          <relatedStateVariable>FriendlyNames</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>ErrorDeviceIDs</name>
+          <direction>out</direction>
+          <relatedStateVariable>ErrorDeviceIDs</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>IdentifyDevice</name>
+      <argumentList>
+        <argument>
+          <name>DeviceID</name>
+          <direction>in</direction>
+          <relatedStateVariable>DeviceID</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Status</name>
+          <direction>out</direction>
+          <relatedStateVariable>Status</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>QAControl</name>
+      <argumentList>
+        <argument>
+          <name>Command</name>
+          <direction>in</direction>
+          <relatedStateVariable>Command</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Parameter</name>
+          <direction>in</direction>
+          <relatedStateVariable>Parameter</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Status</name>
+          <direction>out</direction>
+          <relatedStateVariable>Status</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>UpgradeSubDeviceFirmware</name>
+      <argumentList>
+        <argument>
+          <name>DeviceList</name>
+          <direction>in</direction>
+          <relatedStateVariable>DeviceList</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>FirmwareLink</name>
+          <direction>in</direction>
+          <relatedStateVariable>FirmwareLink</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>UpgradePolicy</name>
+          <direction>in</direction>
+          <relatedStateVariable>UpgradePolicy</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Status</name>
+          <direction>out</direction>
+          <relatedStateVariable>Status</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>SetZigbeeMode</name>
+      <argumentList>
+        <argument>
+          <name>ZigbeeMode</name>
+          <direction>in</direction>
+          <relatedStateVariable>ZigbeeMode</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>Status</name>
+          <direction>out</direction>
+          <relatedStateVariable>Status</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>ScanZigbeeJoin</name>
+      <argumentList>
+         <argument>
+           <name>DevUDN</name>
+           <direction>in</direction>
+           <relatedStateVariable>DevUDN</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>SetDataStores</name>
+      <argumentList>
+         <argument>
+           <name>DataStores</name>
+           <direction>in</direction>
+           <relatedStateVariable>DataStores</relatedStateVariable>
+         </argument>
+        <argument>
+          <name>ErrorCode</name>
+          <direction>out</direction>
+          <relatedStateVariable>ErrorCode</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>GetDataStores</name>
+      <argumentList>
+         <argument>
+           <name>DataStores</name>
+           <direction>in</direction>
+           <relatedStateVariable>DataStores</relatedStateVariable>
+         </argument>
+      </argumentList>
+    </action>
+
+    <action>
+      <name>DeleteDataStores</name>
+      <argumentList>
+         <argument>
+           <name>DataStores</name>
+           <direction>in</direction>
+           <relatedStateVariable>DataStores</relatedStateVariable>
+         </argument>
+        <argument>
+          <name>ErrorCode</name>
+          <direction>out</direction>
+          <relatedStateVariable>ErrorCode</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+
+  </actionList>
+
+  <serviceStateTable>
+    <stateVariable sendEvents="no">
+      <name>DevUDN</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DeviceIDs</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ErrorDeviceIDs</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ReqListType</name>
+      <dataType>string</dataType>
+      <allowedValueList>
+      <allowedValue>ALL_LIST</allowedValue>
+      <allowedValue>PAIRED_LIST</allowedValue>
+      <allowedValue>UNPAIRED_LIST</allowedValue>
+      <allowedValue>SCAN_LIST</allowedValue>
+      </allowedValueList>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DeviceLists</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DeviceStatusList</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>CapabilityIDs</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>CapabilityProfileIDList</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>CapabilityProfileList</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DeviceCapabilities</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ReqCreateGroup</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>RespCreateGroup</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>GroupID</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ResponseStatus</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>RespGetGroups</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DeviceID</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>FriendlyName</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>FriendlyNames</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>Status</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>Command</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>Parameter</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="yes">
+      <name>StatusChange</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="yes">
+      <name>SensorChange</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DownloadURL</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>FirmwareName</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>UpgradePolicy</name>
+      <dataType>string</dataType>
+      <allowedValueList>
+        <allowedValue>Upgrade</allowedValue>
+        <allowedValue>Downgrade</allowedValue>
+        <allowedValue>Reinstall</allowedValue>
+        <allowedValue>0</allowedValue>
+        <allowedValue>1</allowedValue>
+        <allowedValue>2</allowedValue>
+      </allowedValueList>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>attributeList</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="yes">
+      <name>SubDeviceFWUpdate</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ZigbeeMode</name>
+      <dataType>string</dataType>
+      <allowedValueList>
+        <allowedValue>ZC</allowedValue>
+        <allowedValue>ZR</allowedValue>
+        <allowedValue>0</allowedValue>
+        <allowedValue>1</allowedValue>
+      </allowedValueList>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>DataStores</name>
+      <dataType>string</dataType>
+    </stateVariable>
+
+    <stateVariable sendEvents="no">
+      <name>ErrorCode</name>
+      <dataType>string</dataType>
+      <allowedValueList>
+        <allowedValue>0</allowedValue>
+        <allowedValue>1</allowedValue>
+        <allowedValue>2</allowedValue>
+        <allowedValue>3</allowedValue>
+      </allowedValueList>
+    </stateVariable>
+
+  </serviceStateTable>
+
+</scpd>
