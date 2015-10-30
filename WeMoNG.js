@@ -2,8 +2,8 @@
 var Client = require('node-ssdp').Client;
 var request = require('request');
 var xml2js  = require('xml2js');
-var os = require('os');
 var http = require('http');
+
 var util = require('util');
 var url = require('url');
 var ip = require('ip');
@@ -35,7 +35,6 @@ getenddevs.body = [
 ].join('\n');
 
 var devices = {};
-var subscriptions = {};
 var client;
 
 function search() {
@@ -232,7 +231,7 @@ function setStatus(light, capability, value) {
   post_request.end();
 }
 
-
+var subscriptions = {};
 
 function subscribe(node) {
 	console.log("subscribe - %s", node.id);
