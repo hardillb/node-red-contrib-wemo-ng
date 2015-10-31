@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 
 var WeMoNG = require('./lib/wemo.js');
 
-var wemo = new WeMoNG();
+var wemo = new WeMoNG();	
 
 var subscriptions = {};
 
