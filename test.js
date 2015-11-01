@@ -90,3 +90,7 @@ setTimeout(function(){
 	}
 
 }, 11000);
+
+setTimeout(function(){
+	console.log(util.inspect(wemo.get("231442B01005F2-8418260000CA0456").device, {depth: null}));
+}, 12000);

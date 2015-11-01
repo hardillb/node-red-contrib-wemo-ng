@@ -2,46 +2,106 @@
 var util = require('util');
 var ip = require('ip');
 var bodyParser = require('body-parser');
+var http = require('http');
+var os = require('os');
 
 var WeMoNG = require('./lib/wemo.js');
 
 var wemo = new WeMoNG();	
 
-var subscriptions = {};
-
-function subscribe(node) {
-	console.log("subscribe - %s", node.id);
-	var dev = node.dev;
-	console.log("dev - %s", dev);
-	if (wemo.get(dev)){
-		console.log("%s", wemo.get(dev).name);
-		var ipAddress = ip.address();
-		if (subscriptions[dev]) {
-			//exists
-		} else {
-			//new
-			subscriptions[dev] = {'foo': 'bar'};
-		}
-	}
-}
-
-function unsubscribe(node) {
-	console.log("subscribe - %s", node.id);
-	var dev = node.dev;
-	if (subscriptions[dev]) {
-		delete subscriptions[dev];
-	} else {
-		//shouldn't ever get here
-	}
-}
-
 //this won't work as there is no way to stop it...
 //but is that a problem?
 var interval = setInterval(wemo.start.bind(wemo), 60000);
 wemo.start();
-//search();
 
 module.exports = function(RED) {
+
+	var subscriptions = {};
+
+	function resubscribe() {
+
+	}
+
+	setInterval(resubscribe, 500000);
+
+	function subscribe(node) {
+		var dev = node.dev;
+		var device = wemo.get(dev);
+		if (device){
+			if (subscriptions[dev]) {
+				//exists
+				subscriptions[dev].count++;
+			} else {
+				//new
+
+				var ipAddr;
+				//device.ip
+				var interfaces = os.networkInterfaces();
+				var interfaceNames = Object.keys(interfaces);
+				for (var name in interfaceNames) {
+					console.log(interfaces[interfaceNames[name]]);
+					var addrs = interfaces[interfaceNames[name]];
+					for (var add in addrs) {
+						if (addrs[add].netmask){
+							//console.log("node 0.12 or better");
+							//node 0.12 or better
+							if (!addrs[add].internal && addrs[add].family == 'IPv4') {
+								//console.log(addrs[add].address);
+								if (ip.isEqual(ip.mask(addrs[add].address,addrs[add].netmask),ip.mask(devices.ip,addrs[add].netmask))) {
+									ipAddr = addrs[add].address;
+									//console.log(addrs[add].address);
+									break;
+								}
+							}
+						} else {
+							//console.log("node 0.10");
+							//node 0.10
+							if (!addrs[add].internal && addrs[add].family == 'IPv4') {
+								ipAddr = addrs[add].address;
+								//console.log(addrs[add].address);
+								break;
+							}
+						}
+					}
+					if (ipAddr) {
+						break;
+					}
+				}
+
+				var subscribeOptions = {
+					host: device.ip,
+					port: device.port,
+					path: '/upnp/event/basicevent1',
+					method: 'SUBSCRIBE',
+					headers: {
+						'CALLBACK': '<http://' + ipAddr + ':' + RED.settings.uiPort + '/wemoNG/notification' + '>',
+						'NT': 'upnp:event',
+				 		'TIMEOUT': 'Second-600'
+					}
+				};
+
+				var sub_request = http.request(subscribeOptions, function(res) {
+					subscriptions[dev] = {'count': 1, 'sid': res.headers.sid};
+				});
+
+				sub_request.end();
+
+			}
+		}
+	}
+
+	function unsubscribe(node) {
+		var dev = node.dev;
+		if (subscriptions[dev]) {
+			if (subscriptions[dev].count == 1) {
+				delete subscriptions[dev];
+			} else {
+				subscriptions[dev].count--;
+			}
+		} else {
+			//shouldn't ever get here
+		}
+	}
 
 	function wemoNGConfig(n) {
 		RED.nodes.createNode(this,n);
@@ -52,10 +112,21 @@ module.exports = function(RED) {
 	function wemoNGNode(n) {
 		RED.nodes.createNode(this,n);
 		this.device = n.device;
+		this.name = n.name;
 		this.dev = RED.nodes.getNode(this.device).device;
 		var node = this;
+		this.status({fill:"red",shape:"dot",text:"searching"});
 
 		//console.log("Control - %j" ,this.dev);
+		if (!wemo.get(node.dev)){
+			wemo.on('discovered', function(d){
+				if (node.dev === d) {
+					node.status({fill:"green",shape:"dot",text:"found"});
+				}
+			});
+		} else {
+			node.status({fill:"green",shape:"dot",text:"found"});
+		}
 
 		this.on('input', function(msg){
 			var dev = wemo.get(node.dev);
@@ -75,9 +146,9 @@ module.exports = function(RED) {
 
 			if (dev.type == 'socket') {
 				//console.log("socket")
-				toggleSocket(dev, on);
+				wemo.toggleSocket(dev, on);
 			} else if (dev.type == 'light`') {
-				setStatus(dev,"10006", on);
+				wemo.setStatus(dev,"10006", on);
 			} else {
 				console.log("group");
 			}
@@ -88,18 +159,28 @@ module.exports = function(RED) {
 	function wemoNGEvent(n) {
 		RED.nodes.createNode(this,n);
 		this.device = n.device;
+		this.name = n.name;
 		this.dev = RED.nodes.getNode(this.device).device;
 		var node = this;
 		
+		this.status({fill:"red",shape:"dot",text:"searching"});
+
 		//subscribe to events
 		if (wemo.get(this.dev)) {
+			this.status({fill:"green",shape:"dot",text:"found"});
 			subscribe(node);
 		} else {
-			console.log("not discovered yet");
-			setTimeout(function(){
-				subscribe(node);
-			},10000);
+			wemo.on('discovered', function(d){
+				if (node.dev === d) {
+					node.status({fill:"green",shape:"dot",text:"found"});
+					subscribe(node);
+				}
+			});
 		}
+
+		wemo.on('event', function(){
+
+		});
 
 		this.on('close', function(done){
 			//should un subscribe from events
@@ -114,10 +195,13 @@ module.exports = function(RED) {
 
 	});
 
-	RED.httpAdmin.use('/wemoNG/notification/*',bodyParser.raw({type: 'text/xml'}));
+	RED.httpAdmin.use('/wemoNG/notification',bodyParser.raw({type: 'text/xml'}));
 
-	RED.httpAdmin.notify('/wemoNG/notification/*', function(req, res){
-
+	RED.httpAdmin.notify('/wemoNG/notification', function(req, res){
+		console.log("sub - %j",req.headers);
+		console.log("sub - %s", req.body);
 	});
+
+	//console.log("RED - \n%s", util.inspect(RED));
 
 }
