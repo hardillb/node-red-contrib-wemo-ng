@@ -136,14 +136,10 @@
             var id = $( "#node-config-input-device option:selected" ).first().val();
             console.log(id);
             if (devices) {
-              console.log(devices[id].type);
               $('#node-config-input-type').val(devices[id].type);
               $('#node-config-input-name').val(devices[id].name);
             }
           });
-        },
-        oneditsave: function() {
-
         }
     });
 </script>

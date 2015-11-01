@@ -20,6 +20,29 @@ module.exports = function(RED) {
 
 	function resubscribe() {
 
+		var subs = Object.keys(subscriptions);
+		for (var s in subs) {
+			var sub = subscriptions[subs[s]];
+			var dev = wemo.get(subs[s]);
+			var reSubOptions = {
+				host: dev.ip,
+				port: dev.port,
+				path: dev.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
+				method: 'SUBSCRIBE',
+				headers: {
+					'SID': sub.sid,
+					'TIMEOUT': 'Second-600'
+				}
+			};
+
+			var resub_request = http.request(reSubOptions, function(res) {
+				//shoudl raise an error if needed
+			});
+
+			resub_request.end();
+
+		}
+
 	}
 
 	setInterval(resubscribe, 500000);
@@ -39,26 +62,20 @@ module.exports = function(RED) {
 				var interfaces = os.networkInterfaces();
 				var interfaceNames = Object.keys(interfaces);
 				for (var name in interfaceNames) {
-					console.log(interfaces[interfaceNames[name]]);
 					var addrs = interfaces[interfaceNames[name]];
 					for (var add in addrs) {
 						if (addrs[add].netmask){
-							//console.log("node 0.12 or better");
 							//node 0.12 or better
 							if (!addrs[add].internal && addrs[add].family == 'IPv4') {
-								//console.log(addrs[add].address);
 								if (ip.isEqual(ip.mask(addrs[add].address,addrs[add].netmask),ip.mask(devices.ip,addrs[add].netmask))) {
 									ipAddr = addrs[add].address;
-									//console.log(addrs[add].address);
 									break;
 								}
 							}
 						} else {
-							//console.log("node 0.10");
 							//node 0.10
 							if (!addrs[add].internal && addrs[add].family == 'IPv4') {
 								ipAddr = addrs[add].address;
-								//console.log(addrs[add].address);
 								break;
 							}
 						}
@@ -71,7 +88,7 @@ module.exports = function(RED) {
 				var subscribeOptions = {
 					host: device.ip,
 					port: device.port,
-					path: '/upnp/event/basicevent1',
+					path: device.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
 					method: 'SUBSCRIBE',
 					headers: {
 						'CALLBACK': '<http://' + ipAddr + ':' + RED.settings.uiPort + '/wemoNG/notification' + '>',
@@ -85,7 +102,6 @@ module.exports = function(RED) {
 				});
 
 				sub_request.end();
-
 			}
 		}
 	}
@@ -94,7 +110,9 @@ module.exports = function(RED) {
 		var dev = node.dev;
 		if (subscriptions[dev]) {
 			if (subscriptions[dev].count == 1) {
+				var sid = subscriptions[dev].sid;
 				delete subscriptions[dev];
+
 			} else {
 				subscriptions[dev].count--;
 			}
@@ -165,6 +183,14 @@ module.exports = function(RED) {
 		
 		this.status({fill:"red",shape:"dot",text:"searching"});
 
+		wemo.on('event', function(notification){
+			var msg = {
+				'topic': 'wemo',
+				'payload': notification
+			};
+			node.send(msg);
+		});
+
 		//subscribe to events
 		if (wemo.get(this.dev)) {
 			this.status({fill:"green",shape:"dot",text:"found"});
@@ -178,9 +204,6 @@ module.exports = function(RED) {
 			});
 		}
 
-		wemo.on('event', function(){
-
-		});
 
 		this.on('close', function(done){
 			//should un subscribe from events
@@ -198,10 +221,14 @@ module.exports = function(RED) {
 	RED.httpAdmin.use('/wemoNG/notification',bodyParser.raw({type: 'text/xml'}));
 
 	RED.httpAdmin.notify('/wemoNG/notification', function(req, res){
-		console.log("sub - %j",req.headers);
-		console.log("sub - %s", req.body);
+		//console.log("sub - %j",req.headers);
+		//console.log("sub - %s", req.body);
+		var notification = {
+			'sid': req.headers.sid,
+			'msg': req.body.toString()
+		};
+		wemo.emit('event',notification);
+		res.send("");
 	});
-
-	//console.log("RED - \n%s", util.inspect(RED));
 
 }
