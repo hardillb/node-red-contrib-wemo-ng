@@ -17,6 +17,7 @@ wemo.start();
 module.exports = function(RED) {
 
 	var subscriptions = {};
+	var sub2dev = {};
 
 	function resubscribe() {
 
@@ -99,6 +100,7 @@ module.exports = function(RED) {
 
 				var sub_request = http.request(subscribeOptions, function(res) {
 					subscriptions[dev] = {'count': 1, 'sid': res.headers.sid};
+					sub2dev[res.headers.sid] = dev;
 				});
 
 				sub_request.end();
@@ -112,6 +114,25 @@ module.exports = function(RED) {
 			if (subscriptions[dev].count == 1) {
 				var sid = subscriptions[dev].sid;
 				delete subscriptions[dev];
+				delete sub2dev[sid];
+
+				var device = wemo.get(dev);
+				//need to unsubsribe properly here
+				var unSubOpts = {
+					host: device.ip,
+					port: device.port,
+					path: device.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
+					method: 'UNSUBSCRIBE',
+					headers: {
+						'SID': sid
+					}
+				};
+
+				var unSubreq = http.request(unSubOpts, function(res){
+
+				});
+
+				unSubreq.end();
 
 			} else {
 				subscriptions[dev].count--;
@@ -153,19 +174,27 @@ module.exports = function(RED) {
 				//need to show that dev not currently found
 				console.log("no device found");
 				return;
-			} else {
-				//console.log("details %j", dev);
 			}
 
 			var on = 0;
-			if (msg.payload == 'on') {
-				on = 1;
+			if (typeof msg.payload === 'string') {
+				if (msg.payload == 'on') {
+					on = 1;
+				} else if (msg.payload === 'toggle') {
+					on = 2;
+				}
+			} else if (typeof msg.payload === 'number') {
+				if (msg.payload >= 0 && msg.payload < 3) {
+					on = msg.payload;
+				}
+			} else if (typeof msg.payload === 'object') {
+				//object need to get complicated here
 			}
 
-			if (dev.type == 'socket') {
+			if (dev.type === 'socket') {
 				//console.log("socket")
 				wemo.toggleSocket(dev, on);
-			} else if (dev.type == 'light`') {
+			} else if (dev.type === 'light`') {
 				wemo.setStatus(dev,"10006", on);
 			} else {
 				console.log("group");
@@ -178,17 +207,23 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this,n);
 		this.device = n.device;
 		this.name = n.name;
+		this.topic = n.topic;
 		this.dev = RED.nodes.getNode(this.device).device;
 		var node = this;
 		
 		this.status({fill:"red",shape:"dot",text:"searching"});
 
 		wemo.on('event', function(notification){
-			var msg = {
-				'topic': 'wemo',
-				'payload': notification
-			};
-			node.send(msg);
+			var d = sub2dev[notification.sid];
+			if (d == node.dev) {
+				notification.name = wemo.get(node.dev).name;
+				notification.device = d;
+				var msg = {
+					'topic': node.topic ? node.topic : 'wemo',
+					'payload': notification
+				};
+				node.send(msg);
+			}
 		});
 
 		//subscribe to events
@@ -221,8 +256,6 @@ module.exports = function(RED) {
 	RED.httpAdmin.use('/wemoNG/notification',bodyParser.raw({type: 'text/xml'}));
 
 	RED.httpAdmin.notify('/wemoNG/notification', function(req, res){
-		//console.log("sub - %j",req.headers);
-		//console.log("sub - %s", req.body);
 		var notification = {
 			'sid': req.headers.sid,
 			'msg': req.body.toString()
