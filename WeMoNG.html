@@ -1,5 +1,4 @@
 <script type="text/x-red" data-template-name="WeMoNG in">
-
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
         <input type="text" id="node-input-topic" placeholder="Topic">
@@ -20,12 +19,15 @@
 </script>
 
 <script type="text/x-red" data-help-name="WeMoNG in">
-   <p>Simple sample input node. Just sends a single message when it starts up.
-   This is not very useful.</p>
-   <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
-   <b>msg.payload</b>. msg.payload is a String.</p>
+  <p>A node that listens to event notifications from Belkin WeMo devices.</p>
+  <p>Supported devices include:</p>
+  <ul>
+    <li>Sockets</li>
+    <li>Insight Sockets</li>
+    <li>Light Bulbs</li>
+    <li>Motion Detector</li>
+  </ul>
 </script>
-
 
 <script type="text/javascript">
     RED.nodes.registerType('WeMoNG in',{
@@ -50,7 +52,6 @@
 </script>
 
 <script type="text/x-red" data-template-name="WeMoNG out">
-
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-tasks"></i> Device</label>
         <input type="text" id="node-input-device" placeholder="Device">
@@ -65,10 +66,13 @@
 </script>
 
 <script type="text/x-red" data-help-name="WeMoNG out">
-   <p>Simple sample input node. Just sends a single message when it starts up.
-   This is not very useful.</p>
-   <p>Outputs an object called <b>msg</b> containing <b>msg.topic</b> and
-   <b>msg.payload</b>. msg.payload is a String.</p>
+  <p>A node to control Belkin WeMo Devices</p>
+  <p>Supported devices include:</p>
+  <ul>
+    <li>Sockets</li>
+    <li>Insight Sockets</li>
+    <li>Light Bulbs</li>
+  </ul>
 </script>
 
 <script type="text/javascript">
@@ -92,7 +96,6 @@
 </script>
 
 <script type="text/x-red" data-template-name="WeMoNG-dev">
-
     <div class="form-row">
         <label for="node-config-input-device"><i class="fa fa-tasks"></i> Device</label>
         <select size="4" id="node-config-input-device">
