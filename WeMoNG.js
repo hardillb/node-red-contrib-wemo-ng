@@ -205,6 +205,7 @@ module.exports = function(RED) {
 
 	function wemoNGEvent(n) {
 		RED.nodes.createNode(this,n);
+		this.ipaddr = n.ipaddr;
 		this.device = n.device;
 		this.name = n.name;
 		this.topic = n.topic;
@@ -226,17 +227,31 @@ module.exports = function(RED) {
 			}
 		});
 
-		//subscribe to events
-		if (wemo.get(this.dev)) {
-			this.status({fill:"green",shape:"dot",text:"found"});
-			subscribe(node);
-		} else {
-			wemo.on('discovered', function(d){
-				if (node.dev === d) {
-					node.status({fill:"green",shape:"dot",text:"found"});
+		if (this.dev) {
+			//subscribe to events
+			if (wemo.get(this.dev)) {
+				this.status({fill:"green",shape:"dot",text:"found"});
+				subscribe(node);
+			} else {
+				wemo.on('discovered', function(d){
+					if (node.dev === d) {
+						node.status({fill:"green",shape:"dot",text:"found"});
+						subscribe(node);
+					}
+				});
+			}
+		} else if (this.ipaddr) {
+			//legacy
+			var devices = Object.keys(wemo.devices);
+			for (var d in devices) {
+				var device = devices[d];
+				if (device.ip === this.ipaddr) {
+					this.dev = device.id;
+					node.status({fill:"green",shape:"circle",text:"reconfigure"});
 					subscribe(node);
+					break;
 				}
-			});
+			}
 		}
 
 
