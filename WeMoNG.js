@@ -1,3 +1,18 @@
+/**
+ * Copyright 2015 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 "use strict";
 var util = require('util');
 var ip = require('ip');
@@ -89,7 +104,7 @@ module.exports = function(RED) {
 				var subscribeOptions = {
 					host: device.ip,
 					port: device.port,
-					path: device.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
+					path: device.device.UDN.indexOf('Bridge-1_0') < 0 ?  '/upnp/event/basicevent1': '/upnp/event/bridge1',
 					method: 'SUBSCRIBE',
 					headers: {
 						'CALLBACK': '<http://' + ipAddr + ':' + RED.settings.uiPort + '/wemoNG/notification' + '>',
@@ -98,7 +113,10 @@ module.exports = function(RED) {
 					}
 				};
 
+				//console.log(util.inspect(subscribeOptions));
+
 				var sub_request = http.request(subscribeOptions, function(res) {
+					//console.log("subscribe: %s \n %s", device.name, res.statusCode);
 					subscriptions[dev] = {'count': 1, 'sid': res.headers.sid};
 					sub2dev[res.headers.sid] = dev;
 				});
@@ -113,23 +131,25 @@ module.exports = function(RED) {
 		if (subscriptions[dev]) {
 			if (subscriptions[dev].count == 1) {
 				var sid = subscriptions[dev].sid;
-				delete subscriptions[dev];
-				delete sub2dev[sid];
 
 				var device = wemo.get(dev);
 				//need to unsubsribe properly here
 				var unSubOpts = {
 					host: device.ip,
 					port: device.port,
-					path: device.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
+					path: device.device.UDN.indexOf('Bridge-1_0') < 0 ?  '/upnp/event/basicevent1': '/upnp/event/bridge1',
 					method: 'UNSUBSCRIBE',
 					headers: {
 						'SID': sid
 					}
 				};
 
-				var unSubreq = http.request(unSubOpts, function(res){
+				//console.log(util.inspect(unSubOpts));
 
+				var unSubreq = http.request(unSubOpts, function(res){
+					//console.log("unsubscribe: %s \n %s", device.name, res.statusCode);
+					delete subscriptions[dev];
+					delete sub2dev[sid];
 				});
 
 				unSubreq.end();
@@ -214,18 +234,22 @@ module.exports = function(RED) {
 		
 		this.status({fill:"red",shape:"dot",text:"searching"});
 
-		wemo.on('event', function(notification){
+		var onEvent = function(notification){
 			var d = sub2dev[notification.sid];
 			if (d == node.dev) {
-				notification.name = wemo.get(node.dev).name;
-				notification.device = d;
+				var dd = wemo.get(node.dev);
+				notification.name = dd.name;
+				notification.id = dd.id;
+				notification.type = dd.type;
 				var msg = {
 					'topic': node.topic ? node.topic : 'wemo',
 					'payload': notification
 				};
 				node.send(msg);
 			}
-		});
+		};
+
+		wemo.on('event', onEvent);
 
 		if (this.dev) {
 			//subscribe to events
@@ -257,6 +281,7 @@ module.exports = function(RED) {
 
 		this.on('close', function(done){
 			//should un subscribe from events
+			wemo.removeListener('event', onEvent);
 			unsubscribe(node);
 			done();
 		});
@@ -273,7 +298,7 @@ module.exports = function(RED) {
 	RED.httpAdmin.notify('/wemoNG/notification', function(req, res){
 		var notification = {
 			'sid': req.headers.sid,
-			'msg': req.body.toString()
+			'raw': req.body.toString()
 		};
 		wemo.emit('event',notification);
 		res.send("");

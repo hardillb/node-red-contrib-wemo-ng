@@ -1,3 +1,15 @@
+<!--
+  Copyright 2015 IBM Corp.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <script type="text/x-red" data-template-name="WeMoNG in">
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
@@ -25,8 +37,20 @@
     <li>Sockets</li>
     <li>Insight Sockets</li>
     <li>Light Bulbs</li>
+    <li>Light Groups</li>
     <li>Motion Detector</li>
   </ul>
+  <p>Sockets will generate msg.payload with values of 0/1 for off or on, all other
+  types will return an object like this:</p>
+  <pre>
+  {
+    name: 'Bedroom light',
+    type: 'light',
+    id: '94103EA2B27803ED',
+    capability: '1008',
+    value: 1
+  }
+  </pre>
 </script>
 
 <script type="text/javascript">
@@ -80,11 +104,14 @@
     <li>true/false</li>
   </ul>
   <p>for light bulbs it also accepts an object with the following structure</p>
-  <code>
+  <pre>
   {
-    
+    state: 1,
+    dim: 255,
+    color: '255,255,255',
+    temperature: 25000
   }
-  </code>
+  </pre>
 </script>
 
 <script type="text/javascript">
@@ -149,7 +176,6 @@
 
           $('#node-config-input-device').change(function(){
             var id = $( "#node-config-input-device option:selected" ).first().val();
-            console.log(id);
             if (devices) {
               $('#node-config-input-type').val(devices[id].type);
               $('#node-config-input-name').val(devices[id].name);
