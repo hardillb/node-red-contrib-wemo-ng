@@ -245,7 +245,7 @@ module.exports = function(RED) {
 
 				xml2js.parseString(notification.raw, function(err, res){
 					if (!err) {
-						console.log(util.inspect(res, {depth: null}));
+						//console.log(util.inspect(res, {depth: null}));
 						var prop = res['e:propertyset']['e:property'][0];
 						switch(dd.type) {
 							case "light":
@@ -342,6 +342,9 @@ module.exports = function(RED) {
 			'sid': req.headers.sid,
 			'raw': req.body.toString()
 		};
+		wemo.parseEvent(req.body.toString()).then(function(evt){
+			console.log("ppp - %s", util.inspect(evt));
+		});
 		wemo.emit('event',notification);
 		res.send("");
 	});
