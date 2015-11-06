@@ -19,7 +19,6 @@ var ip = require('ip');
 var bodyParser = require('body-parser');
 var http = require('http');
 var os = require('os');
-var xml2js  = require('xml2js');
 
 var WeMoNG = require('./lib/wemo.js');
 
@@ -54,6 +53,12 @@ module.exports = function(RED) {
 
 			var resub_request = http.request(reSubOptions, function(res) {
 				//shoudl raise an error if needed
+			});
+
+			resub_request.on('error', function(){
+				console.log("failed to resubscribe to %s", dev.name );
+				//delete subscriptions[dev];
+				//delete sub2dev[sid];
 			});
 
 			resub_request.end();
@@ -239,54 +244,29 @@ module.exports = function(RED) {
 			var d = sub2dev[notification.sid];
 			if (d == node.dev) {
 				var dd = wemo.get(node.dev);
-				notification.name = dd.name;
-				notification.id = dd.id;
 				notification.type = dd.type;
+				notification.name = dd.name;
+				if (!notification.id) {
+					notification.id = node.dev;
+				}
 
-				xml2js.parseString(notification.raw, function(err, res){
-					if (!err) {
-						//console.log(util.inspect(res, {depth: null}));
-						var prop = res['e:propertyset']['e:property'][0];
-						switch(dd.type) {
-							case "light":
-							case "group":
-								if (prop.hasOwnProperty('StatusChange')) {
-									xml2js.parseString(prop['StatusChange'][0], function(err, res){
-										if (!err && res != null) {
-											//console.log(util.inspect( res, {depth: null}));
-											var id = res['StateEvent']['DeviceID'][0]['_'];
-											//console.log("event id %s device id %s", dd.id, id);
-											if (dd.id === id){
-												notification.capability = res['StateEvent']['CapabilityId'][0];
-												notification.value = res['StateEvent']['Value'][0];
-												var msg = {
-													'topic': node.topic ? node.topic : 'wemo',
-													'payload': notification
-												};
-												node.send(msg);
-											}
-										}
-									});
-								}
-								break;
-							case "socket":
-								if (prop.hasOwnProperty('BinaryState')) {
-									notification.state = prop['BinaryState'][0];
-								} else {
-									//time?
-								}
-								var msg = {
-									'topic': node.topic ? node.topic : 'wemo',
-									'payload': notification
-								};
-								node.send(msg);
-								break;
-							default:
+				var msg = {
+					topic: node.topic ? node.topic : 'wemo',
+					payload: notification
+				};
+
+				switch (notification.type){
+					case 'light':
+					case 'group':
+						if (dd.id === notification.id) {
+							node.send(msg);
 						}
-					}
-					
-
-				});
+						break;
+					case 'socket':
+						node.send(msg);
+						break;
+					default:
+				}
 
 			}
 		};
@@ -339,13 +319,12 @@ module.exports = function(RED) {
 
 	RED.httpAdmin.notify('/wemoNG/notification', function(req, res){
 		var notification = {
-			'sid': req.headers.sid,
-			'raw': req.body.toString()
+			'sid': req.headers.sid
 		};
 		wemo.parseEvent(req.body.toString()).then(function(evt){
-			console.log("ppp - %s", util.inspect(evt));
+			evt.sid = notification.sid;
+			wemo.emit('event',evt);
 		});
-		wemo.emit('event',notification);
 		res.send("");
 	});
 
