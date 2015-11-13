@@ -10,7 +10,11 @@
     "node-red",
     "wemo"
   ],
-  "author": "hardillb@gmail.com",
+  "author": {
+    "email": "hardillb@gmail.com",
+    "name": "Benjamin Hardill",
+    "url": "http://www.hardill.me.uk/wordpress/"
+  },
   "license": "APACHE-2.0",
   "dependencies": {
     "node-ssdp": "~2.6.3",

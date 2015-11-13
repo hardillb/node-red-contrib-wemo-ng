@@ -43,7 +43,7 @@ module.exports = function(RED) {
 			var reSubOptions = {
 				host: dev.ip,
 				port: dev.port,
-				path: dev.device.UDN.indexOf('Bridge-1_0') ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
+				path: dev.device.UDN.indexOf('Bridge-1_0') < 0 ? '/upnp/event/basicevent1': '/upnp/event/bridge1',
 				method: 'SUBSCRIBE',
 				headers: {
 					'SID': sub.sid,
@@ -53,12 +53,20 @@ module.exports = function(RED) {
 
 			var resub_request = http.request(reSubOptions, function(res) {
 				//shoudl raise an error if needed
+				if (res.statusCode != 200) {
+					console.log("problem with resubscription %s - %s", res.statusCode, res.statusMessage);
+					console.log("opts - %s", util.inspect(reSubOptions));
+					console.log("dev - %s", util.inspect(dev));
+					//subscribe({dev: subs[s]});
+				}
 			});
 
 			resub_request.on('error', function(){
 				console.log("failed to resubscribe to %s", dev.name );
-				//delete subscriptions[dev];
-				//delete sub2dev[sid];
+				//need to find a way to resubsribe
+				delete subscriptions[dev];
+				delete sub2dev[sub.sid];
+				subscribe({dev: subs[s]});
 			});
 
 			resub_request.end();
@@ -95,7 +103,7 @@ module.exports = function(RED) {
 								}
 							}
 						} else {
-							//node 0.10
+							//node 0.10 not great but best we can do
 							if (!addrs[add].internal && addrs[add].family == 'IPv4') {
 								ipAddr = addrs[add].address;
 								break;
@@ -218,12 +226,14 @@ module.exports = function(RED) {
 			}
 
 			if (dev.type === 'socket') {
-				//console.log("socket")
+				//console.log("socket");
 				wemo.toggleSocket(dev, on);
 			} else if (dev.type === 'light`') {
+				//console.log("light");
 				wemo.setStatus(dev,"10006", on);
 			} else {
 				console.log("group");
+				wemo.setStatus(dev, "10006", on);
 			}
 		});
 	}
