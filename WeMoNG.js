@@ -31,6 +31,8 @@ wemo.start();
 
 module.exports = function(RED) {
 
+	var settings = RED.settings;
+
 	var subscriptions = {};
 	var sub2dev = {};
 
@@ -115,13 +117,19 @@ module.exports = function(RED) {
 					}
 				}
 
+				var callback_url = 'http://' + ipAddr + ':' + settings.uiPort;
+				if(settings.httpAdminRoot) {
+					callback_url += settings.httpAdminRoot;
+				}
+				callback_url += '/wemoNG/notification';
+
 				var subscribeOptions = {
 					host: device.ip,
 					port: device.port,
 					path: device.device.UDN.indexOf('Bridge-1_0') < 0 ?  '/upnp/event/basicevent1': '/upnp/event/bridge1',
 					method: 'SUBSCRIBE',
 					headers: {
-						'CALLBACK': '<http://' + ipAddr + ':' + RED.settings.uiPort + '/wemoNG/notification' + '>',
+						'CALLBACK': '<' + callback_url + '>',
 						'NT': 'upnp:event',
 				 		'TIMEOUT': 'Second-600'
 					}
