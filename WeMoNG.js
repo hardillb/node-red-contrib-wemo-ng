@@ -49,7 +49,7 @@ module.exports = function(RED) {
         method: 'SUBSCRIBE',
         headers: {
           'SID': sub.sid,
-          'TIMEOUT': 'Second-600'
+          'TIMEOUT': 'Second-300'
         }
       };
 
@@ -60,11 +60,14 @@ module.exports = function(RED) {
           console.log("opts - %s", util.inspect(reSubOptions));
           console.log("dev - %s", util.inspect(dev));
           //subscribe({dev: subs[s]});
+        } else {
+          // console.log("resubscription good %s", res.statusCode);
+          // console.log("dev - %s", util.inspect(dev));
         }
       });
 
       resub_request.on('error', function(){
-        console.log("failed to resubscribe to %s", dev.name );
+        //console.log("failed to resubscribe to %s", dev.name );
         //need to find a way to resubsribe
         delete subscriptions[dev];
         delete sub2dev[sub.sid];
@@ -77,7 +80,7 @@ module.exports = function(RED) {
 
   }
 
-  setInterval(resubscribe, 500000);
+  setInterval(resubscribe, 200000);
 
   function subscribe(node) {
     var dev = node.dev;
@@ -121,7 +124,14 @@ module.exports = function(RED) {
         if(settings.httpAdminRoot) {
           callback_url += settings.httpAdminRoot;
         }
-        callback_url += '/wemoNG/notification';
+
+        if (callback_url.lastIndexOf('/') != (callback_url.length -1)) {
+          callback_url += '/';
+        }
+
+        callback_url += 'wemoNG/notification';
+
+        console.log("Callback URL = %s",callback_url);
 
         var subscribeOptions = {
           host: device.ip,
@@ -131,16 +141,20 @@ module.exports = function(RED) {
           headers: {
             'CALLBACK': '<' + callback_url + '>',
             'NT': 'upnp:event',
-            'TIMEOUT': 'Second-600'
+            'TIMEOUT': 'Second-300'
           }
         };
 
         //console.log(util.inspect(subscribeOptions));
 
         var sub_request = http.request(subscribeOptions, function(res) {
-          //console.log("subscribe: %s \n %s", device.name, res.statusCode);
-          subscriptions[dev] = {'count': 1, 'sid': res.headers.sid};
-          sub2dev[res.headers.sid] = dev;
+          //console.log("subscribe: %s - %s", device.name, res.statusCode);
+          if (res.statusCode == 200) {
+            subscriptions[dev] = {'count': 1, 'sid': res.headers.sid};
+            sub2dev[res.headers.sid] = dev;
+          } else {
+            console.log("failed to subsrcibe");
+          }
         });
 
         sub_request.end();
@@ -339,6 +353,7 @@ module.exports = function(RED) {
     var notification = {
       'sid': req.headers.sid
     };
+    //console.log("Incoming Event %s", req.body.toString());
     wemo.parseEvent(req.body.toString()).then(function(evt){
       evt.sid = notification.sid;
       wemo.emit('event',evt);
