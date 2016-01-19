@@ -59,7 +59,9 @@ module.exports = function(RED) {
           console.log("problem with resubscription %s - %s", res.statusCode, res.statusMessage);
           console.log("opts - %s", util.inspect(reSubOptions));
           console.log("dev - %s", util.inspect(dev));
-          //subscribe({dev: subs[s]});
+          delete subscriptions[dev];
+          delete sub2dev[sub.sid];
+          subscribe({dev: subs[s]});
         } else {
           // console.log("resubscription good %s", res.statusCode);
           // console.log("dev - %s", util.inspect(dev));
@@ -234,7 +236,7 @@ module.exports = function(RED) {
 
       var on = 0;
       if (typeof msg.payload === 'string') {
-        if (msg.payload == 'on') {
+        if (msg.payload == 'on' || msg.payload == '1' || msg.payload == 'true') {
           on = 1;
         } else if (msg.payload === 'toggle') {
           on = 2;
@@ -245,6 +247,13 @@ module.exports = function(RED) {
         }
       } else if (typeof msg.payload === 'object') {
         //object need to get complicated here
+        if (msg.payload.state && typeof msg.payload === 'number') {
+          on = msg.payload.state
+        }
+      } else if (typeof msg.payload === 'boolean') {
+        if (msg.payload) {
+          on = 1;
+        }
       }
 
       if (dev.type === 'socket') {
