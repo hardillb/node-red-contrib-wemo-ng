@@ -57,3 +57,16 @@ And a lightblub can look like this:
    }
 ```
 
+Insight
+
+```
+  {
+    "raw": "<e:propertyset xmlns:e=\"urn:schemas-upnp-org:event-1-0\">\n<e:property>\n<BinaryState>8|1454271649|301|834|56717|1209600|8|1010|638602|12104165</BinaryState>\n</e:property>\n</e:propertyset>\n\n\r", 
+    "state": "8", 
+    "power": 1.01, 
+    "sid": "uuid:ea808ecc-1dd1-11b2-9579-8e5c117d479e", 
+    "type": "socket", 
+    "name": "WeMo Insight", 
+    "id": "221450K1200F5C" 
+  }
+```
