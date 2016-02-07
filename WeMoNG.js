@@ -104,7 +104,7 @@ module.exports = function(RED) {
             if (addrs[add].netmask){
               //node 0.12 or better
               if (!addrs[add].internal && addrs[add].family == 'IPv4') {
-                if (ip.isEqual(ip.mask(addrs[add].address,addrs[add].netmask),ip.mask(devices.ip,addrs[add].netmask))) {
+                if (ip.isEqual(ip.mask(addrs[add].address,addrs[add].netmask),ip.mask(device.ip,addrs[add].netmask))) {
                   ipAddr = addrs[add].address;
                   break;
                 }

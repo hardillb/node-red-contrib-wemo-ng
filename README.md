@@ -16,11 +16,11 @@ The node accecpts the following inputs
  * boolean true/false
  * an Object like this (lights only, coming soon) 
  ```
-     {
-       state: 1,
-       dim: 255,
-       color: '255,255,255',
-       temperature: 25000
+    {
+      state: 1,
+      dim: 255,
+      color: '255,255,255',
+      temperature: 25000
     }
  ```
 
