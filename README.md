@@ -1,6 +1,8 @@
-# node-red-nodes-wemo
+# node-red-contrib-nodes-wemo
 
-A better Node-RED node for working with Belkin WeMo devices
+A set of Node-RED nodes for working with Belkin WeMo devices.
+
+These nodes use the uPnP discovery so may not discover your devices if you have a firewall enabled
 
 ## Output node
 

@@ -247,8 +247,16 @@ module.exports = function(RED) {
         }
       } else if (typeof msg.payload === 'object') {
         //object need to get complicated here
-        if (msg.payload.state && typeof msg.payload === 'number') {
-          on = msg.payload.state
+        if (msg.payload.state && typeof msg.payload.state === 'number') {
+          if (dev.type === 'socket') {
+            if (msg.payload >= 0 && msg.payload < 2) {
+              on = msg.payload.state
+            }
+          } else if (dev.type === 'light' || dev.type === 'group') {
+            if (msg.payload >= 0 && msg.payload < 3) {
+              on = msg.payload.state;
+            }
+          }
         }
       } else if (typeof msg.payload === 'boolean') {
         if (msg.payload) {
