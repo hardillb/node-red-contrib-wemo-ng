@@ -1,4 +1,4 @@
-# THIS REPOSITORY IS OUT OF DATE, USE THE CODE IN THE CORE node-red-nodes REPO
+# THIS REPOSITORY IS OUT OF DATE, USE THE CODE IN THE CORE [node-red-nodes](http://github.com/node-red/node-red-nodes) REPO
 
 # node-red-contrib-nodes-wemo
 
