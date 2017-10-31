@@ -1,3 +1,5 @@
+# THIS REPOSITORY IS OUT OF DATE, USE THE CODE IN THE CORE node-red-nodes REPO
+
 # node-red-contrib-nodes-wemo
 
 A set of Node-RED nodes for working with Belkin WeMo devices.
